@@ -29,6 +29,7 @@ app.get('/pets/:id', function (req, res) {
       if (pets[id]) {
         res.send(pets[id]);
       } else {
+        res.set('Content-Type', 'text/plain');
         res.status(404).send('Not Found');
       }
     });
@@ -37,3 +38,5 @@ app.get('/pets/:id', function (req, res) {
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
 })
+
+module.exports = app;
