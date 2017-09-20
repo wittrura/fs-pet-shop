@@ -1,15 +1,15 @@
 const express = require('express');
 
 var bodyParser = require('body-parser');
-
 var fs = require('fs');
 var morgan = require('morgan');
+var basicAuth = require('express-basic-auth')
 
 function readFile() {
   return new Promise((resolve, reject) => {
     fs.readFile('./pets.json', 'utf8', (err, data) => {
       // reject on errors, or resolve with data from file
-      err ? reject(err) : resolve(JSON.parse(data));
+      err ? reject(err) : resolve(JSON.parse(data))
     });
   });
 }
@@ -17,13 +17,18 @@ function readFile() {
 const app = express();
 
 // parse application/json
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 // logging to STDOUT
-app.use(morgan('combined'))
+// app.use(morgan('combined'));
+app.use(morgan('dev'));
 
+app.use(basicAuth({
+    users: { 'admin': 'meowmix' }
+}));
 
 app.get('/pets', function(req, res, next) {
+  console.log(req);
   readFile()
     .then((data) => {
       let pets = data;
@@ -149,6 +154,11 @@ app.use(function(req, res) {
   res.set('Content-Type', 'text/plain')
      .status(404)
      .send("Not Found");
+});
+
+app.use(function (err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).send('Internal Server Error')
 });
 
 module.exports = app;
